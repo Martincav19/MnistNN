@@ -5,6 +5,13 @@
 #include <cmath>
 #include <iomanip>
 
+matrix::matrix(){
+    std::vector<std::vector<float>> mat = {{0}};
+    this->mat = mat;
+    this->rows = mat.size();
+    this->cols = mat[0].size();
+}
+
 matrix::matrix(std::vector<std::vector<float>> mat){
     this->mat = mat;
     this->rows = mat.size();

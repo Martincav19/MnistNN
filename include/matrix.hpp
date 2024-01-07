@@ -12,6 +12,7 @@ private:
     std::vector<std::vector<float>> mat;
 
 public:
+    matrix();
     matrix(std::vector<std::vector<float>>);
     matrix(std::vector<float>);
     matrix(int,int);

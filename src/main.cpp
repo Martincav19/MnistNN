@@ -1,22 +1,8 @@
 #include <iostream>
 #include <vector>
-#include "../include/myLibrary.hpp"
 #include "../include/readMNIST.hpp"
 #include "../include/matrix.hpp"
-
-std::vector<float> get_expected(int label, int possibilities){
-    std::vector<float> expected;
-    expected.resize(possibilities);
-
-    for(int i = 0; i < possibilities; i++){
-        if(i == label)
-            expected[i] = .99;
-        else
-            expected[i] = 0.01;
-    }
-
-    return expected;
-}
+#include "../include/NN.hpp"
 
 int main(){
 
@@ -47,20 +33,11 @@ int main(){
         
     }while(s != 77); 
     */
-    
-    int input_nodes = 784;
+    NN neuralNetwork(784,50,10,.1);
 
-    int hidden_nodes = 50;
+    //matrix bias1(hidden_nodes, 1);
 
-    int output_nodes = 10;
-
-    float learningRate = .1;
-
-    matrix* weights1 = new matrix(hidden_nodes, input_nodes);
-    matrix bias1(hidden_nodes, 1);
-
-    matrix* weights2 = new matrix(output_nodes, hidden_nodes);
-    matrix bias2(output_nodes, 1);
+    //matrix bias2(output_nodes, 1);
 
     //training
     for(int inputNum = 0; inputNum < ar.size(); inputNum++){
@@ -69,34 +46,7 @@ int main(){
 
         matrix inputMat = rawInput * (.99 / 255.0) + .01;
 
-        //forward prop
-
-        matrix hiddenValues = ((*weights1 * inputMat.transpose())).sigmoid();
-
-        matrix outputValues = ((*weights2 * hiddenValues)).sigmoid();
-
-        //expectedValues and error calculation
-        matrix expectedValues(get_expected(labels[inputNum],output_nodes));
-        
-        matrix outputError = outputValues - expectedValues.transpose();
-        matrix hiddenError = weights2->transpose() * outputError;
-
-        //back prop
-
-        matrix onesOut(output_nodes,1,1);
-        matrix onesHidden(hidden_nodes,1,1);
-
-        matrix w2grad = (outputError % outputValues % (onesOut - outputValues)) * hiddenValues.transpose(); 
-        //matrix b2grad = outputError % outputValues % (outputValues * (-1) + 1);
-
-        matrix w1grad = (hiddenError % hiddenValues % (onesHidden - hiddenValues)) * inputMat;
-        //matrix b1grad = hiddenError % hiddenValues % (hiddenValues * (-1) + 1);
-
-        *weights2 = *weights2 - w2grad * learningRate;   
-        //bias2 = bias2 - b2grad * learningRate;
-
-        *weights1 = *weights1 - w1grad * learningRate;
-        //bias1 = bias1 - b1grad * learningRate; 
+        neuralNetwork.train(inputMat,labels[inputNum]);
     
     }
 
@@ -136,9 +86,7 @@ int main(){
 
         matrix inputMat = rawInput * (.99 / 255.0) + .01;
 
-        matrix hiddenValues = ((*weights1 * inputMat.transpose())).sigmoid();
-
-        matrix outputValues = ((*weights2 * hiddenValues)).sigmoid();
+        matrix outputValues = neuralNetwork.query(inputMat);
 
         //mostrar el resultado
         std::cout << std::endl;
